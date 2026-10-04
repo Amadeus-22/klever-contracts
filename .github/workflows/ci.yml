@@ -1,0 +1,20 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      # rustup reads the channel and the wasm32v1-none target from rust-toolchain.toml
+      - name: Show toolchain
+        run: rustup show
+      - name: Test contracts
+        run: |
+          for dir in */Cargo.toml; do
+            (cd "$(dirname "$dir")" && cargo test)
+          done
