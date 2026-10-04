@@ -1,7 +1,7 @@
 # build output
 target/
-/adder/wasm/
-/adder/trace1.scen.json
+/*/wasm/
+/*/trace1.scen.json
 
 # wallets and keys never belong in this repository
 *.pem

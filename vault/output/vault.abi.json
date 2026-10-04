@@ -1,0 +1,237 @@
+{
+    "buildInfo": {
+        "rustc": {
+            "version": "1.89.0",
+            "commitHash": "29483883eed69d5fb4db01964cdf2af4d86e9cb2",
+            "commitDate": "2025-08-04",
+            "channel": "Stable",
+            "short": "rustc 1.89.0 (29483883e 2025-08-04)"
+        },
+        "contractCrate": {
+            "name": "vault",
+            "version": "0.0.0"
+        },
+        "framework": {
+            "name": "klever-sc",
+            "version": "0.45.1"
+        }
+    },
+    "docs": [
+        "A KLV vault with a spending limit.",
+        "",
+        "The owner funds the vault and names one spender. The spender can withdraw at",
+        "most `limit` per period; the allowance does not carry over to the next period.",
+        "Only the owner can change the limit or the spender, or withdraw without a limit.",
+        "",
+        "Periods are fixed windows of `period_seconds`, counted from deployment. A key",
+        "that is stolen from the spender can therefore take at most one period's limit",
+        "before the owner replaces it."
+    ],
+    "name": "Vault",
+    "constructor": {
+        "inputs": [
+            {
+                "name": "spender",
+                "type": "Address"
+            },
+            {
+                "name": "limit",
+                "type": "BigUint"
+            },
+            {
+                "name": "period_seconds",
+                "type": "u64"
+            }
+        ],
+        "outputs": []
+    },
+    "upgradeConstructor": {
+        "inputs": [],
+        "outputs": []
+    },
+    "endpoints": [
+        {
+            "docs": [
+                "Adds KLV to the vault. Anyone may deposit."
+            ],
+            "name": "deposit",
+            "mutability": "mutable",
+            "payableInTokens": [
+                "KLV"
+            ],
+            "inputs": [],
+            "outputs": []
+        },
+        {
+            "docs": [
+                "Sends `amount` KLV to the spender, within the limit of the current period."
+            ],
+            "name": "withdraw",
+            "mutability": "mutable",
+            "inputs": [
+                {
+                    "name": "amount",
+                    "type": "BigUint"
+                }
+            ],
+            "outputs": []
+        },
+        {
+            "docs": [
+                "Sends `amount` KLV to the owner. Not subject to the limit."
+            ],
+            "name": "ownerWithdraw",
+            "onlyOwner": true,
+            "mutability": "mutable",
+            "inputs": [
+                {
+                    "name": "amount",
+                    "type": "BigUint"
+                }
+            ],
+            "outputs": []
+        },
+        {
+            "docs": [
+                "Changes the limit. The amount already spent in the current period stays counted."
+            ],
+            "name": "setLimit",
+            "onlyOwner": true,
+            "mutability": "mutable",
+            "inputs": [
+                {
+                    "name": "limit",
+                    "type": "BigUint"
+                }
+            ],
+            "outputs": []
+        },
+        {
+            "docs": [
+                "Replaces the spender, for example after its key is lost or stolen."
+            ],
+            "name": "setSpender",
+            "onlyOwner": true,
+            "mutability": "mutable",
+            "inputs": [
+                {
+                    "name": "spender",
+                    "type": "Address"
+                }
+            ],
+            "outputs": []
+        },
+        {
+            "docs": [
+                "Amount withdrawn by the spender in the current period."
+            ],
+            "name": "getSpent",
+            "mutability": "readonly",
+            "inputs": [],
+            "outputs": [
+                {
+                    "type": "BigUint"
+                }
+            ]
+        },
+        {
+            "docs": [
+                "Amount the spender can still withdraw in the current period."
+            ],
+            "name": "getRemaining",
+            "mutability": "readonly",
+            "inputs": [],
+            "outputs": [
+                {
+                    "type": "BigUint"
+                }
+            ]
+        },
+        {
+            "name": "getSpender",
+            "mutability": "readonly",
+            "inputs": [],
+            "outputs": [
+                {
+                    "type": "Address"
+                }
+            ]
+        },
+        {
+            "name": "getLimit",
+            "mutability": "readonly",
+            "inputs": [],
+            "outputs": [
+                {
+                    "type": "BigUint"
+                }
+            ]
+        },
+        {
+            "name": "getPeriodSeconds",
+            "mutability": "readonly",
+            "inputs": [],
+            "outputs": [
+                {
+                    "type": "u64"
+                }
+            ]
+        }
+    ],
+    "events": [
+        {
+            "identifier": "deposit",
+            "inputs": [
+                {
+                    "name": "from",
+                    "type": "Address",
+                    "indexed": true
+                },
+                {
+                    "name": "amount",
+                    "type": "BigUint"
+                }
+            ]
+        },
+        {
+            "identifier": "withdraw",
+            "inputs": [
+                {
+                    "name": "spender",
+                    "type": "Address",
+                    "indexed": true
+                },
+                {
+                    "name": "amount",
+                    "type": "BigUint",
+                    "indexed": true
+                },
+                {
+                    "name": "spent_in_period",
+                    "type": "BigUint"
+                }
+            ]
+        },
+        {
+            "identifier": "limitChanged",
+            "inputs": [
+                {
+                    "name": "limit",
+                    "type": "BigUint"
+                }
+            ]
+        },
+        {
+            "identifier": "spenderChanged",
+            "inputs": [
+                {
+                    "name": "spender",
+                    "type": "Address",
+                    "indexed": true
+                }
+            ]
+        }
+    ],
+    "kdaAttributes": [],
+    "types": {}
+}

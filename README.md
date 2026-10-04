@@ -8,7 +8,40 @@ Smart contracts for [KleverChain](https://klever.org), written in Rust and compi
 
 | Contract | What it does | Testnet |
 |---|---|---|
+| [`vault`](vault/) | A KLV vault with a spending limit: the owner funds it and names one spender, who can withdraw at most `limit` per period. A stolen spender key can take one period's limit, not the balance. | [`klv1qqqq…5gvgsc`](https://testnet.kleverscan.org/account/klv1qqqqqqqqqqqqqpgqprrwnlul05prr753xm278kq6jexa0a523vqq5gvgsc) |
 | [`adder`](adder/) | The framework's starter template: keeps one number in storage, anyone can add to it. Used here to prove the toolchain end to end. | [`klv1qqqq…ry9n0t`](https://testnet.kleverscan.org/account/klv1qqqqqqqqqqqqqpgqmlw0q7jafgq6wc68snyhzq2zg6mhfxct3vqqry9n0t) |
+
+## vault
+
+| Endpoint | Who | Does |
+|---|---|---|
+| `init(spender, limit, period_seconds)` | deployer | Sets the spender, the limit per period and the period length. |
+| `deposit` (payable KLV) | anyone | Adds KLV to the vault. |
+| `withdraw(amount)` | spender | Sends `amount` to the spender if the period's total stays within the limit. |
+| `ownerWithdraw(amount)` | owner | Sends `amount` to the owner, with no limit. |
+| `setLimit(limit)` | owner | Changes the limit; what was already spent this period stays counted. |
+| `setSpender(address)` | owner | Replaces the spender, for example after a key is lost or stolen. |
+| `getLimit`, `getSpent`, `getRemaining`, `getSpender`, `getPeriodSeconds` | views | Current state. `getSpent` and `getRemaining` already reflect a period that has rolled over. |
+
+Periods are fixed windows counted from deployment, and unused allowance does not
+carry over. 13 tests in [`vault/tests`](vault/tests/vault_blackbox_test.rs) cover
+the limit, the period boundary, access control and rejected inputs.
+
+[permwatch](https://github.com/Amadeus-22/permwatch) reads these views and warns
+when the spending approaches the limit: `permwatch vault <contract>`.
+
+### Recorded run on testnet (2026-10-03)
+
+Limit 10 KLV per hour (`10000000` units; KLV has 6 decimals), spender
+`klv1x4lh…e787`.
+
+| Step | Result |
+|---|---|
+| Deploy | tx `c59ba8e7f016d394e236f2e5e97e98fe241332fa7f9868c78b78493b0a93ed39` |
+| Owner deposits 50 KLV | tx `ae20ad30356f7e00c5316474bc3ff7a93f4516b3162f855ce269f33650643db4`; vault balance `50000000` |
+| Spender withdraws 4 KLV | tx `4c1c6e9f834872a93ff5f557513668fe36092e19ae550ec275002bbb168ffb4d`; `getSpent` `4000000`, `getRemaining` `6000000` |
+| Spender tries 7 KLV more | rejected: `withdrawal exceeds the limit of this period`; state unchanged |
+| Spender withdraws 6 KLV | tx `f22ab15ff774f0edb7bbd934c852fa115cdb7b360ac6bfe764367673c7d02a6f`; `getRemaining` `0` |
 
 ## Toolchain
 
@@ -29,6 +62,9 @@ cd adder
 ~/klever-sdk/ksc all build     # writes output/adder.wasm (1411 bytes)
 cargo test                     # 7 tests: unit, whitebox, blackbox and scenario
 ```
+
+The same two commands work in `vault/`. After changing a contract's endpoints,
+regenerate its typed proxy with `~/klever-sdk/ksc all proxy`.
 
 ## Deploy and call on testnet
 
@@ -56,6 +92,14 @@ curl -X POST "$N/vm/int" -H 'Content-Type: application/json' \
 The contract address is not printed by `sc create`; read it from
 `https://api.testnet.klever.org/v1.0/sc/list?owner=<your address>`.
 
+Two things that cost time here:
+
+- **`no contract permission`** when sending a transaction: the account has a user
+  permission at ID 0, so its owner permission moved to another ID. Pass the owner's
+  ID, for example `--permID 1`. `permwatch audit <address>` lists the IDs.
+- **Address and number arguments** are written `--args address:klv1…`,
+  `--args bi:10000000` and `--args u64:3600`.
+
 ### Recorded run (2026-10-03)
 
 | Step | Result |
@@ -68,4 +112,5 @@ The contract address is not printed by `sc create`; read it from
 ## Roadmap
 
 1. `adder` on testnet — done.
-2. A vault contract with a withdrawal limit, paired with a Go monitor that alerts when an account approaches it (the KleverChain counterpart of [chainwatch](https://github.com/Amadeus-22/chainwatch)).
+2. `vault` with a withdrawal limit, monitored by permwatch — done.
+3. Vault for KDA tokens, not only KLV, with one limit per token.
