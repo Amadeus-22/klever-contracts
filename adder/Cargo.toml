@@ -1,0 +1,21 @@
+[package]
+name = "adder"
+version = "0.0.0"
+authors = ["Amadeus-22"]
+edition = "2021"
+publish = false
+
+[lib]
+path = "src/adder.rs"
+
+[dependencies.klever-sc]
+version = "0.45.0"
+
+[dev-dependencies.klever-sc-scenario]
+version = "0.45.0"
+
+[workspace]
+members = [
+    ".",
+    "meta",
+]

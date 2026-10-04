@@ -1,0 +1,13 @@
+# build output
+target/
+/adder/wasm/
+/adder/trace1.scen.json
+
+# wallets and keys never belong in this repository
+*.pem
+.env
+
+# editors / OS
+.idea/
+.vscode/
+.DS_Store

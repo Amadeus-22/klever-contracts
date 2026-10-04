@@ -1,0 +1,16 @@
+[
+  "bigIntAdd",
+  "bigIntFinishUnsigned",
+  "bigIntGetUnsignedArgument",
+  "checkNoPayment",
+  "getNumArguments",
+  "mBufferFromBigIntUnsigned",
+  "mBufferGetByteSlice",
+  "mBufferGetLength",
+  "mBufferSetBytes",
+  "mBufferStorageLoad",
+  "mBufferStorageStore",
+  "mBufferToBigIntUnsigned",
+  "managedGetMultiKDACallValue",
+  "signalError"
+]

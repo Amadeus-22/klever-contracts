@@ -1,0 +1,87 @@
+{
+    "buildInfo": {
+        "rustc": {
+            "version": "1.89.0",
+            "commitHash": "29483883eed69d5fb4db01964cdf2af4d86e9cb2",
+            "commitDate": "2025-08-04",
+            "channel": "Stable",
+            "short": "rustc 1.89.0 (29483883e 2025-08-04)"
+        },
+        "contractCrate": {
+            "name": "adder",
+            "version": "0.0.0"
+        },
+        "framework": {
+            "name": "klever-sc",
+            "version": "0.45.1"
+        }
+    },
+    "docs": [
+        "One of the simplest smart contracts possible,",
+        "it holds a single variable in storage, which anyone can increment."
+    ],
+    "name": "Adder",
+    "constructor": {
+        "inputs": [
+            {
+                "name": "initial_value",
+                "type": "BigUint"
+            }
+        ],
+        "outputs": []
+    },
+    "upgradeConstructor": {
+        "inputs": [
+            {
+                "name": "new_value",
+                "type": "BigUint"
+            }
+        ],
+        "outputs": []
+    },
+    "endpoints": [
+        {
+            "name": "getSum",
+            "mutability": "readonly",
+            "inputs": [],
+            "outputs": [
+                {
+                    "type": "BigUint"
+                }
+            ]
+        },
+        {
+            "docs": [
+                "Add desired amount to the storage variable."
+            ],
+            "name": "add",
+            "mutability": "mutable",
+            "inputs": [
+                {
+                    "name": "value",
+                    "type": "BigUint"
+                }
+            ],
+            "outputs": []
+        },
+        {
+            "docs": [
+                "Add desired amount to the storage variable accepting a payment (usage example of payable)."
+            ],
+            "name": "add_payable",
+            "mutability": "mutable",
+            "payableInTokens": [
+                "KLV"
+            ],
+            "inputs": [
+                {
+                    "name": "value",
+                    "type": "BigUint"
+                }
+            ],
+            "outputs": []
+        }
+    ],
+    "kdaAttributes": [],
+    "types": {}
+}
